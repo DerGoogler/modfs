@@ -1,0 +1,19 @@
+{
+  "name": "modfs",
+  "version": "1.0.0",
+  "description": "ModFS is a json format processor and also used in MMRL as the ModFS system",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
+  "scripts": {
+    "prepublish": "npm run build",
+    "build": "tsc"
+  },
+  "author": "Der_Googler",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.7.4"
+  },
+  "files": [
+    "/dist"
+  ]
+}
