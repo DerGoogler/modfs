@@ -1,9 +1,9 @@
 # ModFS
 
-// TODO
+Usage
 
 ```ts
-import ModFS from "./src/index";
+import ModFS from "modfs";
 
 const fs = new ModFS({
   ADB: "/data/adb",
@@ -11,17 +11,19 @@ const fs = new ModFS({
 });
 
 const text = ModFS.format("Nice one, <NAME>", {
-  NAME: "Kevin",
+  NAME: "Marvin",
+  // NAME: undefined -- handle null/undefined values etc
 });
 
-console.log(text);
+console.log("ModFS.format:", text);
 
-console.log(fs.get("MODULES"));
+console.log("get:", fs.get("MODULES"));
 
-console.log(fs.formatEntries());
+console.log("formatEntries:", fs.formatEntries());
 
-console.log(fs.stringify(null, 4));
+console.log("entries:", fs.entries);
 
-console.log(fs.stringifyEntries(null, 4));
+console.log("stringify:", fs.stringify(null, 4));
 
+console.log("stringifyEntries:", fs.stringifyEntries(null, 4));
 ```
