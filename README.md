@@ -1,5 +1,11 @@
 # ModFS
 
+**Supports**
+
+`array`, `array.length`, `string`, `number`, `boolean`, custom arrays separator with `<array(, )>`
+
+Functions currently not supported
+
 Usage
 
 ```ts

@@ -1,8 +1,7 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "lib": ["ESNext"],
-    "module": "ESNext",
+    "lib": ["ESNext", "dom"],
     "moduleResolution": "node",
     "noEmitOnError": true,
     "noImplicitReturns": true,

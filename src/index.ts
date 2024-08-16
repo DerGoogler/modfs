@@ -5,8 +5,8 @@ interface IModFS<Entries> {
   formatEntries(): Entries;
   set entries(entries: Entries | undefined);
   get entries(): Entries | undefined;
-  getEntrie<K extends keyof Entries>(key: K): Entries[K] | undefined;
-  get<K extends keyof Entries>(key: K): Entries[K] | undefined;
+  getEntry<K extends keyof Entries>(key: K): Entries[K] | undefined;
+  get<K extends keyof Entries>(key: K): any;
 
   stringify(replacer?: (this: any, key: string, value: any) => any, space?: string | number): string;
 
@@ -25,26 +25,56 @@ class ModFS<Entries> implements IModFS<Entries> {
   }
 
   public format(template: string): string {
-    return template.replace(/\<(\w+(\.\w+)*)\>/gi, (match, key) => {
+    const resolveKey = (key: string): string | undefined => {
       const keys = key.split(".");
       let value: Entries | ModFSAllowedTypes = this._entries;
       for (const k of keys) {
         if (k in (value as any)) {
           value = value![k];
-          if (typeof value !== "string") {
-            return match;
-          }
         } else {
-          return match;
+          return undefined;
         }
       }
-
-      if (typeof value === "function") {
-        throw new TypeError("'value' cannot be a function");
+      if (typeof value === "string") {
+        return value;
+      } else {
+        return String(value);
       }
+    };
 
-      return this.format(value as string);
-    });
+    const formatArray = (key: string, separator: string): string | undefined => {
+      const keys = key.split(".");
+      let value: Entries | ModFSAllowedTypes = this._entries;
+      for (const k of keys) {
+        if (k in (value as any)) {
+          value = value![k];
+        } else {
+          return undefined;
+        }
+      }
+      if (Array.isArray(value)) {
+        return value.join(separator);
+      } else {
+        return undefined;
+      }
+    };
+
+    let formatted = template;
+    let previous: string;
+    do {
+      previous = formatted;
+      formatted = formatted.replace(/\<(\w+(\.\w+)*)(\((.*?)\))?\>/gi, (match, key, _, __, separator) => {
+        if (separator !== undefined) {
+          const arrayValue = formatArray(key, separator);
+          return arrayValue !== undefined ? arrayValue : match;
+        } else {
+          const value = resolveKey(key);
+          return value !== undefined ? value : match;
+        }
+      });
+    } while (formatted !== previous);
+
+    return formatted;
   }
 
   public static format<Entries>(template: string, entries?: Entries): string {
@@ -54,18 +84,7 @@ class ModFS<Entries> implements IModFS<Entries> {
   public formatEntries(): Entries {
     const formatValue = (value: any): any => {
       if (typeof value === "string") {
-        return value.replace(/\<(\w+(\.\w+)*)\>/gi, (match, key) => {
-          const keys = key.split(".");
-          let tempValue = this._entries;
-          for (const k of keys) {
-            if (k in (tempValue as any)) {
-              tempValue = tempValue![k];
-            } else {
-              return match;
-            }
-          }
-          return formatValue(tempValue);
-        });
+        return this.format(value);
       } else if (Array.isArray(value)) {
         return value.map((item: any) => formatValue(item));
       } else if (typeof value === "object" && value !== null) {
@@ -80,8 +99,7 @@ class ModFS<Entries> implements IModFS<Entries> {
 
     const formattedObject: any = {};
     for (const key in this._entries) {
-      const formattedValue = formatValue(this._entries[key]);
-      formattedObject[key] = formattedValue;
+      formattedObject[key] = formatValue(this._entries[key]);
     }
     return formattedObject;
   }
@@ -98,12 +116,27 @@ class ModFS<Entries> implements IModFS<Entries> {
     return this._entries;
   }
 
-  public getEntrie<K extends keyof Entries>(key: K): Entries[K] | undefined {
-    return this.formatEntries()[key];
+  public getEntry<K extends keyof Entries>(key: K): Entries[K] | undefined {
+    return this.get<K>(key);
   }
 
-  public get<K extends keyof Entries>(key: K): Entries[K] | undefined {
-    return this.getEntrie<K>(key);
+  public get<K extends keyof Entries>(key: K): any {
+    const keys = (key as string).split(".");
+    let value: any = this._entries;
+
+    for (const k of keys) {
+      if (value && k in value) {
+        value = value[k];
+      } else {
+        return undefined;
+      }
+    }
+
+    if (typeof value === "string") {
+      return this.format(value);
+    }
+
+    return this.formatEntries()[key];
   }
 
   public stringify(replacer?: ((this: any, key: string, value: any) => any) | undefined, space?: string | number | undefined): string;
