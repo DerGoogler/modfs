@@ -2,7 +2,7 @@
 
 **Supports**
 
-`array`, `array.length`, `string`, `number`, `boolean`, custom arrays separator with `<array(, )>`
+`array`, `array.length`, `string`, `number`, `boolean`, custom arrays separator with `<array(, )>`, custom array element start and end with `<array(, |"")>`
 
 Functions currently not supported
 
@@ -23,14 +23,23 @@ const fs = new ModFS({
   },
 });
 
-const text = ModFS.format("The family of <human.firstName> goes averagely over <age> years and the fun fact is that the last name of the family is <human.lastName>. Currently the family has a member count of <familyMembers.length>. The names of family are <familyMembers(, )>.", {
-  human: {
-    firstName: "Kevin",
-    lastName: undefined,
-  },
-  avgAge: 100,
-  familyMembers: ["Granpa", "Papa", "Mama"],
+const text = ModFS.format(
+  "The family of <human.firstName> goes averagely over <avgAge> years and the fun fact is that the last name of the family is <human.lastName>. Currently the family has a member count of <familyMembers.length>. The names of family are <familyMembers(, )>.",
+  {
+    human: {
+      firstName: "Kevin",
+      lastName: undefined,
+    },
+    avgAge: 100,
+    familyMembers: ["Granpa", "Papa", "Mama"],
+  }
+);
+
+const urls = ModFS.format("mmrl install local <ZIPFILES( |\"\")>", {
+  ZIPFILES: ["https://google.com", "https://google.com"],
 });
+
+console.log("arrays:", urls);
 
 console.log("ModFS.format:", text);
 

@@ -42,7 +42,7 @@ class ModFS<Entries> implements IModFS<Entries> {
       }
     };
 
-    const formatArray = (key: string, separator: string): string | undefined => {
+    const formatArray = (key: string, separator: string, start: string, end: string): string | undefined => {
       const keys = key.split(".");
       let value: Entries | ModFSAllowedTypes = this._entries;
       for (const k of keys) {
@@ -53,7 +53,7 @@ class ModFS<Entries> implements IModFS<Entries> {
         }
       }
       if (Array.isArray(value)) {
-        return value.join(separator);
+        return value.map((item) => `${start}${item}${end}`).join(separator);
       } else {
         return undefined;
       }
@@ -61,11 +61,14 @@ class ModFS<Entries> implements IModFS<Entries> {
 
     let formatted = template;
     let previous: string;
+    const arrayPattern = /\<(\w+(\.\w+)*)(\((.*?)\))?(\((.*?)\))?\>/gi;
+
     do {
       previous = formatted;
-      formatted = formatted.replace(/\<(\w+(\.\w+)*)(\((.*?)\))?\>/gi, (match, key, _, __, separator) => {
+      formatted = formatted.replace(arrayPattern, (match, key, _, __, separator, ___, wrap) => {
         if (separator !== undefined) {
-          const arrayValue = formatArray(key, separator);
+          const [sep, startAndEnd = ""] = separator.split("|");
+          const arrayValue = formatArray(key, sep, startAndEnd[0] || "", startAndEnd[1] || "");
           return arrayValue !== undefined ? arrayValue : match;
         } else {
           const value = resolveKey(key);
