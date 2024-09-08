@@ -4,13 +4,12 @@
 
 `array`, `array.length`, `string`, `number`, `boolean`, custom arrays separator with `<array(, )>`, custom array element start and end with `<array(, |"")>`
 
-Functions currently not supported
+Functions now supported `<KEY=(arg1|arg2)>`
 
 Usage
 
 ```ts
 import ModFS from "modfs";
-
 const fs = new ModFS({
   ADB: "/data/adb",
   MODULES: "<ADB>/modules",
@@ -35,8 +34,10 @@ const text = ModFS.format(
   }
 );
 
-const urls = ModFS.format("mmrl install local <ZIPFILES( |\"\")>", {
-  ZIPFILES: ["https://google.com", "https://google.com"],
+const zips = ["https://google.com", "https://google.com"];
+
+const urls = ModFS.format('mmrl install local <ZIPFILES( |"")>', {
+  ZIPFILES: zips,
 });
 
 console.log("arrays:", urls);
@@ -58,4 +59,16 @@ console.log("entries:", fs.entries);
 console.log("stringify:", fs.stringify(null, 4));
 
 console.log("stringifyEntries:", fs.stringifyEntries(null, 4));
+
+const result = ModFS.format("Module <valdilate=(magifsk|mkshrc)>", {
+  valdilate: (root, mod) => {
+    if (root.toLowerCase() === "magisk") {
+      return mod;
+    } else {
+      return ""
+    }
+  },
+});
+
+console.log(result);
 ```
