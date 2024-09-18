@@ -50,12 +50,12 @@ console.log("stringify:", fs.stringify(null, 4));
 
 console.log("stringifyEntries:", fs.stringifyEntries(null, 4));
 
-const result = ModFS.format("Module <valdilate=(magifsk|mkshrc)>", {
+const result = ModFS.format("Module <valdilate=(magisk|mkshrc)>", {
   valdilate: (root, mod) => {
     if (root.toLowerCase() === "magisk") {
-      return mod;
+      return { module: mod };
     } else {
-      return ""
+      return "";
     }
   },
 });
